@@ -125,7 +125,7 @@ int main(){
 		*t = i;
 		
 		if ( i < quant_leitores){
-			printf("Leitor : %d", *t);         
+			printf("Leitor : %d", *t);
 			pthread_create( &threads[i], NULL, Leitora, (void *) t);
 		}else 
 			pthread_create( &threads[i], NULL, Escritora, (void *) t);
