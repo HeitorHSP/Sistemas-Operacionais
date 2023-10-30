@@ -11,61 +11,27 @@ int escr_fila = 0, leit_fila = 0, lendo = 0, escrevendo = 0;
 
 int vez = 0; // escr = 0 | leit = 1
 
-void EntraLeitura(int id){
-
-	pthread_mutex_lock(&mutex);
-	while (escrevendo > 0 && !vez) {
-		leit_fila++;
-		pthread_cond_wait(&cond_leit, &mutex);
-		leit_fila--;
-	}
-	lendo++;
-	printf("Leit %d entrou\n", id);
-	printf("Leit %d leu %d\n", id, var_global);
-	pthread_mutex_unlock(&mutex);
-}
-
-//escr, ler
-void SaiLeitura(int id){
-	pthread_mutex_lock(&mutex);
-	lendo--;
-	printf("Leit %d saiu\n", id);
-	if (lendo == 0) {
-		vez = 0;
-		pthread_cond_signal(&cond_escr);
-	}	
-	pthread_mutex_unlock(&mutex);
-}
-
-void EntraEscrita(int id){
-	while (lendo > 0 && vez) {
-		escr_fila++;
-		pthread_cond_wait(&cond_escr, &mutex);
-		escr_fila--;
-	}
-	escrevendo++;
-	printf("Esc %d entrou\n", id);
-	printf("Esc %d leu %d\n", id, var_global);
-	printf("Esc %d escreveu %d\n", id, var_global);
-	var_global = id;
-}
-
-void SaiEscrita(int id){
-	escrevendo--;
-	if(escrevendo == 0) {
-		vez = 1;
-	}
-	printf("Esc %d saiu\n", id);
-}	
-
 void * Escritora ( void * arg ){
 	int * id = (int *) arg;
 	int escritas = num_escritas;
 	while (escritas > 0) {
 		escritas--;
 		pthread_mutex_lock(&mutex);
-		EntraEscrita(*id);
-		SaiEscrita(*id);
+		while (lendo > 0 && vez) {
+			escr_fila++;
+			pthread_cond_wait(&cond_escr, &mutex);
+			escr_fila--;
+		}
+		escrevendo++;
+		printf("Esc %d entrou\n", *id);
+		printf("Esc %d leu %d\n", *id, var_global);
+		printf("Esc %d escreveu %d\n", *id, var_global);
+		var_global = *id;
+		escrevendo--;
+		if(escrevendo == 0) {
+			vez = 1;
+		}
+		printf("Esc %d saiu\n", *id);
 		pthread_mutex_unlock(&mutex);
 	}
 	pthread_exit(NULL);
@@ -76,8 +42,24 @@ void * Leitora( void * arg ){
 	int leituras = num_leituras;
 	while (leituras > 0) {
 		leituras--;
-        EntraLeitura(*id);
-        SaiLeitura(*id);
+        pthread_mutex_lock(&mutex);
+		while (escrevendo > 0 && !vez) {
+			leit_fila++;
+			pthread_cond_wait(&cond_leit, &mutex);
+			leit_fila--;
+		}
+		lendo++;
+		printf("Leit %d entrou\n", *id);
+		printf("Leit %d leu %d\n", *id, var_global);
+		pthread_mutex_unlock(&mutex);
+		pthread_mutex_lock(&mutex);
+		lendo--;
+		printf("Leit %d saiu\n", *id);
+		if (lendo == 0) {
+			vez = 0;
+			pthread_cond_signal(&cond_escr);
+		}	
+		pthread_mutex_unlock(&mutex);
 	}
 	pthread_exit(NULL);
 }
