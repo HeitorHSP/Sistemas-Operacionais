@@ -70,10 +70,8 @@ void SaiEscrita(int id){
 	escrevendo--;
 	if(escrevendo == 0) {
 		vez = 1;
-		//pthread_cond_signal(&cond_leit);
 	}
 	fprintf(log_file, "Esc %d saiu\n", id);
-	//pthread_cond_broadcast(&cond_leit);
 }	
 
 void * Escritora ( void * arg ){
@@ -81,15 +79,10 @@ void * Escritora ( void * arg ){
 	int escritas = num_escritas;
 	while (escritas > 0) {
 		escritas--;
-		/*if (escritas < 0){
-			pthread_cond_broadcast(&cond_leit);
-			break;
-		} else {*/
-			pthread_mutex_lock(&mutex);
-			EntraEscrita(*id);
-			SaiEscrita(*id);
-			pthread_mutex_unlock(&mutex);
-		//}
+		pthread_mutex_lock(&mutex);
+		EntraEscrita(*id);
+		SaiEscrita(*id);
+		pthread_mutex_unlock(&mutex);
 	}
 	pthread_exit(NULL);
 }
