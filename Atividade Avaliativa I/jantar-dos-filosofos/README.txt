@@ -22,4 +22,4 @@ Observe que este código simula o problema clássico dos Filósofos que jantam, 
 
 comando para rodar:
 
-gcc -o jantar_dos_filosofos jantar_dos_filosofos.c -pthread
+gcc -o jantar_dos_filosofos main.c -pthread
