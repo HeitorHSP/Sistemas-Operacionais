@@ -3,7 +3,7 @@
 #include <pthread.h>
 #include <string.h>
 
-int num_leituras, num_escritas, quant_leitoras, quant_escritoras;
+int num_leituras, num_escritas, quant_leitores, quant_escritores;
 int var_global;
 FILE * log_file;
 pthread_mutex_t mutex;
@@ -38,9 +38,8 @@ void EntraLeitura(int id){
 	fclose(leit_file);
 
 	free(leit_filename);
-	
-	
 }
+
 //escr, ler
 void SaiLeitura(int id){
 	pthread_mutex_lock(&mutex);
@@ -107,8 +106,8 @@ void * Leitora( void * arg ){
 }
 
 int main(){
-	quant_leitoras = 5;
-	quant_escritoras = 5;
+	quant_leitores = 5;
+	quant_escritores = 5;
 	num_leituras = 3;
 	num_escritas = 2;
 	log_file = fopen("log","w+");
@@ -119,20 +118,20 @@ int main(){
 	pthread_mutex_init(&mutex, NULL);
 
 	int i, * t;
-	pthread_t threads[quant_leitoras + quant_escritoras];
+	pthread_t threads[quant_leitores + quant_escritores];
 
-	for (i = 0; i < (quant_leitoras + quant_escritoras); i++){
+	for (i = 0; i < (quant_leitores + quant_escritores); i++){
 		t = malloc(sizeof(int));
 		*t = i;
 		
-		if ( i < quant_leitoras){
-			printf("leitora : %d", *t);         
+		if ( i < quant_leitores){
+			printf("Leitor : %d", *t);         
 			pthread_create( &threads[i], NULL, Leitora, (void *) t);
 		}else 
 			pthread_create( &threads[i], NULL, Escritora, (void *) t);
 	}
 
-	for (i = 0; i < quant_leitoras + quant_escritoras; i++)
+	for (i = 0; i < quant_leitores + quant_escritores; i++)
 		pthread_join(threads[i], NULL);
 
 	return 0;
