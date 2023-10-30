@@ -115,10 +115,8 @@ int main(){
 
 	for (i = 0; i < (quant_leitores + quant_escritores); i++){
 		t = malloc(sizeof(int));
-		*t = i;
-		
+		*t = i;		
 		if ( i < quant_leitores){
-			printf("Leitor : %d", *t);
 			pthread_create( &threads[i], NULL, Leitora, (void *) t);
 		}else 
 			pthread_create( &threads[i], NULL, Escritora, (void *) t);
