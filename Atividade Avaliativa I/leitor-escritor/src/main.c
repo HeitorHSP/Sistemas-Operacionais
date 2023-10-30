@@ -5,7 +5,6 @@
 
 int num_leituras, num_escritas, quant_leitores, quant_escritores;
 int var_global;
-FILE * log_file;
 pthread_mutex_t mutex;
 pthread_cond_t cond_leit, cond_escr;
 int escr_fila = 0, leit_fila = 0, lendo = 0, escrevendo = 0;
@@ -21,30 +20,16 @@ void EntraLeitura(int id){
 		leit_fila--;
 	}
 	lendo++;
-	fprintf(log_file, "Leit %d entrou\n", id);
-	fprintf(log_file, "Leit %d leu %d\n", id, var_global);
+	printf("Leit %d entrou\n", id);
+	printf("Leit %d leu %d\n", id, var_global);
 	pthread_mutex_unlock(&mutex);
-	
-
-	FILE *leit_file;
-	char *leit_filename;
-
-	leit_file = calloc(sizeof(FILE*),1);
-	leit_filename = calloc(sizeof(char),20);
-
-	sprintf(leit_filename,"%d.txt",id);
-	leit_file = fopen(leit_filename, "a+");
-	fprintf(leit_file,"%d\n",var_global);
-	fclose(leit_file);
-
-	free(leit_filename);
 }
 
 //escr, ler
 void SaiLeitura(int id){
 	pthread_mutex_lock(&mutex);
 	lendo--;
-	fprintf(log_file, "Leit %d saiu\n", id);
+	printf("Leit %d saiu\n", id);
 	if (lendo == 0) {
 		vez = 0;
 		pthread_cond_signal(&cond_escr);
@@ -59,11 +44,10 @@ void EntraEscrita(int id){
 		escr_fila--;
 	}
 	escrevendo++;
-	fprintf(log_file, "Esc %d entrou\n", id);
-	fprintf(log_file, "Esc %d leu %d\n", id, var_global);
+	printf("Esc %d entrou\n", id);
+	printf("Esc %d leu %d\n", id, var_global);
+	printf("Esc %d escreveu %d\n", id, var_global);
 	var_global = id;
-	fprintf(log_file, "Esc %d escreveu %d\n", id, var_global);	
-	
 }
 
 void SaiEscrita(int id){
@@ -71,7 +55,7 @@ void SaiEscrita(int id){
 	if(escrevendo == 0) {
 		vez = 1;
 	}
-	fprintf(log_file, "Esc %d saiu\n", id);
+	printf("Esc %d saiu\n", id);
 }	
 
 void * Escritora ( void * arg ){
@@ -103,7 +87,6 @@ int main(){
 	quant_escritores = 5;
 	num_leituras = 3;
 	num_escritas = 2;
-	log_file = fopen("log","w+");
 
 	pthread_cond_init(&cond_escr, NULL);
 	pthread_cond_init(&cond_leit, NULL);
